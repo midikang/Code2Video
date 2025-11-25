@@ -175,6 +175,18 @@ src/
 
 ### 快速开始
 
+**方法一: 使用启动脚本（推荐）**
+
+```bash
+# Linux/Mac
+./start-web.sh
+
+# Windows
+start-web.bat
+```
+
+**方法二: 手动启动**
+
 ```bash
 # 进入web界面目录
 cd web-interface

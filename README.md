@@ -314,6 +314,18 @@ We now provide a **modern web interface** built with Node.js, Vue 3, and Ant Des
 
 ### Quick Start
 
+**Option 1: Use the startup script (Recommended)**
+
+```bash
+# Linux/Mac
+./start-web.sh
+
+# Windows
+start-web.bat
+```
+
+**Option 2: Manual start**
+
 ```bash
 # Navigate to web interface directory
 cd web-interface
