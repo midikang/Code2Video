@@ -98,6 +98,11 @@
 </template>
 
 <script setup>
+/**
+ * 视频库组件
+ * 显示所有已生成的视频，支持播放和下载
+ */
+
 import { ref, onMounted } from 'vue';
 import {
   ReloadOutlined,
@@ -107,14 +112,20 @@ import {
 import { message } from 'ant-design-vue';
 import { getVideos } from '../api';
 
-const loading = ref(false);
-const videos = ref([]);
-const playerVisible = ref(false);
-const currentVideo = ref(null);
+// 响应式数据
+const loading = ref(false); // 加载状态
+const videos = ref([]); // 视频列表
+const playerVisible = ref(false); // 播放器弹窗显示状态
+const currentVideo = ref(null); // 当前选中的视频
 
+// 配置基础 URL
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 const BASE_URL = API_BASE_URL.replace('/api', '');
 
+/**
+ * 加载视频列表
+ * 从服务器获取所有已生成的视频
+ */
 const loadVideos = async () => {
   try {
     loading.value = true;
@@ -128,21 +139,37 @@ const loadVideos = async () => {
   }
 };
 
+/**
+ * 查看视频
+ * 打开视频播放器弹窗
+ * @param {Object} video - 视频对象
+ */
 const viewVideo = (video) => {
   currentVideo.value = video;
   playerVisible.value = true;
 };
 
+/**
+ * 获取视频的完整 URL
+ * @param {string} path - 视频的相对路径
+ * @returns {string} 完整的视频 URL
+ */
 const getVideoUrl = (path) => {
   return `${BASE_URL}${path}`;
 };
 
+/**
+ * 格式化日期时间
+ * @param {string} dateString - ISO 格式的日期字符串
+ * @returns {string} 本地化的日期时间字符串
+ */
 const formatDate = (dateString) => {
   if (!dateString) return '-';
   const date = new Date(dateString);
   return date.toLocaleString('zh-CN');
 };
 
+// 组件挂载时加载视频列表
 onMounted(() => {
   loadVideos();
 });

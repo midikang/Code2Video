@@ -120,6 +120,11 @@
 </template>
 
 <script setup>
+/**
+ * 任务列表组件
+ * 显示所有视频生成任务的状态和详细信息
+ */
+
 import { ref, onMounted, watch } from 'vue';
 import {
   ReloadOutlined,
@@ -130,6 +135,7 @@ import {
 import { message } from 'ant-design-vue';
 import { getJobs, getJob, deleteJob } from '../api';
 
+// 组件属性
 const props = defineProps({
   refreshTrigger: {
     type: Number,
@@ -137,15 +143,21 @@ const props = defineProps({
   },
 });
 
-const loading = ref(false);
-const jobs = ref([]);
-const detailsVisible = ref(false);
-const selectedJob = ref(null);
+// 响应式数据
+const loading = ref(false); // 加载状态
+const jobs = ref([]); // 任务列表
+const detailsVisible = ref(false); // 详情弹窗显示状态
+const selectedJob = ref(null); // 当前选中的任务
 
+/**
+ * 加载任务列表
+ * 从服务器获取所有任务并按创建时间降序排列
+ */
 const loadJobs = async () => {
   try {
     loading.value = true;
     const response = await getJobs();
+    // 按创建时间降序排序（最新的在前）
     jobs.value = response.data.sort((a, b) => 
       new Date(b.createdAt) - new Date(a.createdAt)
     );
@@ -157,6 +169,10 @@ const loadJobs = async () => {
   }
 };
 
+/**
+ * 查看任务详情
+ * 获取任务的完整信息（包括执行日志）并显示弹窗
+ */
 const viewJobDetails = async (job) => {
   try {
     const response = await getJob(job.id);
@@ -168,27 +184,41 @@ const viewJobDetails = async (job) => {
   }
 };
 
+/**
+ * 删除任务
+ * 删除指定任务并刷新列表
+ */
 const deleteJobHandler = async (jobId) => {
   try {
     await deleteJob(jobId);
     message.success('任务已删除');
-    loadJobs();
+    loadJobs(); // 刷新列表
   } catch (err) {
     console.error('Error deleting job:', err);
     message.error('删除任务失败');
   }
 };
 
+/**
+ * 获取任务状态对应的颜色
+ * @param {string} status - 任务状态
+ * @returns {string} Ant Design 标签颜色
+ */
 const getStatusColor = (status) => {
   const colors = {
-    queued: 'default',
-    running: 'processing',
-    completed: 'success',
-    failed: 'error',
+    queued: 'default',      // 排队中 - 灰色
+    running: 'processing',  // 运行中 - 蓝色
+    completed: 'success',   // 已完成 - 绿色
+    failed: 'error',        // 失败 - 红色
   };
   return colors[status] || 'default';
 };
 
+/**
+ * 获取任务状态的中文文本
+ * @param {string} status - 任务状态
+ * @returns {string} 中文状态文本
+ */
 const getStatusText = (status) => {
   const texts = {
     queued: '排队中',
@@ -199,31 +229,44 @@ const getStatusText = (status) => {
   return texts[status] || status;
 };
 
+/**
+ * 格式化日期时间
+ * @param {string} dateString - ISO 格式的日期字符串
+ * @returns {string} 本地化的日期时间字符串
+ */
 const formatDate = (dateString) => {
   if (!dateString) return '-';
   const date = new Date(dateString);
   return date.toLocaleString('zh-CN');
 };
 
+/**
+ * 格式化时间
+ * @param {string} dateString - ISO 格式的日期字符串
+ * @returns {string} 本地化的时间字符串
+ */
 const formatTime = (dateString) => {
   if (!dateString) return '';
   const date = new Date(dateString);
   return date.toLocaleTimeString('zh-CN');
 };
 
+// 组件挂载时加载任务列表
 onMounted(() => {
   loadJobs();
-  // Auto refresh every 5 seconds for running jobs
+  
+  // 为运行中的任务设置自动刷新（每5秒）
   const interval = setInterval(() => {
     if (jobs.value.some(job => job.status === 'running')) {
       loadJobs();
     }
   }, 5000);
   
-  // Cleanup on unmount
+  // 组件卸载时清理定时器
   return () => clearInterval(interval);
 });
 
+// 监听 refreshTrigger 变化，触发刷新
 watch(() => props.refreshTrigger, () => {
   loadJobs();
 });

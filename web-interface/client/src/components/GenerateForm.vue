@@ -71,30 +71,43 @@
 </template>
 
 <script setup>
+/**
+ * 视频生成表单组件
+ * 用于提交新的视频生成任务
+ */
+
 import { ref, reactive } from 'vue';
 import { PlayCircleOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import { generateVideo } from '../api';
 
+// 定义组件事件
 const emit = defineEmits(['video-generated']);
 
-const formRef = ref();
-const loading = ref(false);
-const error = ref(null);
-const success = ref(false);
+// 响应式数据
+const formRef = ref(); // 表单引用
+const loading = ref(false); // 加载状态
+const error = ref(null); // 错误信息
+const success = ref(false); // 成功状态
 
+// 表单数据
 const formState = reactive({
-  knowledgePoint: '',
-  useFeedback: true,
-  useAssets: true,
+  knowledgePoint: '', // 知识点描述
+  useFeedback: true, // 是否使用视觉反馈优化
+  useAssets: true, // 是否使用外部素材
 });
 
+/**
+ * 处理表单提交
+ * 调用 API 创建新的视频生成任务
+ */
 const handleSubmit = async () => {
   try {
     loading.value = true;
     error.value = null;
     success.value = false;
 
+    // 调用 API 创建任务
     const response = await generateVideo(
       formState.knowledgePoint,
       formState.useFeedback,
@@ -105,10 +118,10 @@ const handleSubmit = async () => {
       success.value = true;
       message.success('视频生成任务已创建');
       
-      // Reset form
+      // 重置表单
       formState.knowledgePoint = '';
       
-      // Emit event to parent
+      // 通知父组件任务已创建
       emit('video-generated', response.data);
     }
   } catch (err) {

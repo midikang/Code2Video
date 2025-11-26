@@ -58,6 +58,11 @@
 </template>
 
 <script setup>
+/**
+ * Code2Video Web 界面主应用组件
+ * 管理整体布局和标签页切换
+ */
+
 import { ref } from 'vue';
 import {
   VideoCameraOutlined,
@@ -70,19 +75,24 @@ import GenerateForm from './components/GenerateForm.vue';
 import JobsList from './components/JobsList.vue';
 import VideosList from './components/VideosList.vue';
 
-const selectedKeys = ref(['generate']);
-const jobsRefreshTrigger = ref(0);
+// 响应式数据
+const selectedKeys = ref(['generate']); // 当前选中的标签页
+const jobsRefreshTrigger = ref(0); // 任务列表刷新触发器
 
+// Ant Design 主题配置
 const themeConfig = {
   token: {
-    colorPrimary: '#1890ff',
+    colorPrimary: '#1890ff', // 主题色
   },
 };
 
+/**
+ * 处理视频生成完成事件
+ * 切换到任务列表标签页并触发刷新
+ */
 const handleVideoGenerated = () => {
-  // Switch to jobs tab and trigger refresh
-  selectedKeys.value = ['jobs'];
-  jobsRefreshTrigger.value++;
+  selectedKeys.value = ['jobs']; // 切换到任务列表标签
+  jobsRefreshTrigger.value++; // 触发任务列表刷新
 };
 </script>
 
