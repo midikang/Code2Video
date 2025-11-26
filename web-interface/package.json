@@ -1,0 +1,35 @@
+{
+  "name": "code2video-web-interface",
+  "version": "1.0.0",
+  "description": "Web interface for Code2Video - Educational video generation tool",
+  "main": "server/index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "nodemon server/index.js",
+    "client": "cd client && npm run dev",
+    "build": "cd client && npm run build",
+    "start": "NODE_ENV=production node server/index.js",
+    "install-all": "npm install && cd client && npm install"
+  },
+  "keywords": [
+    "code2video",
+    "video-generation",
+    "manim",
+    "educational-videos"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^2.2.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.2.1",
+    "multer": "^2.0.2",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "nodemon": "^3.1.11"
+  }
+}

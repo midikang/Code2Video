@@ -181,6 +181,7 @@ https://github.com/user-attachments/assets/d906423f-734a-41c9-b102-b113ad3b3c25
   - [2. Configure LLM API Keys](#2-configure-llm-api-keys)
   - [3. Run Agents](#3-run-agents)
   - [4. Project Organization](#4-project-organization)
+- [🌐 Web Interface](#-web-interface)
 - [📊 Evaluation: MMMC](#-evaluation----mmmc)
 - [🙏 Acknowledgements](#-acknowledgements)
 - [📌 Citation](#-citation)
@@ -297,6 +298,56 @@ src/
 │   └── TEST-single/    # example single-topic generation results
 ```
 
+
+---
+
+## 🌐 Web Interface
+
+We now provide a **modern web interface** built with Node.js, Vue 3, and Ant Design for easier interaction with Code2Video!
+
+### Features
+
+- 🎬 **Visual Video Generation**: Create videos through an intuitive web form
+- 📊 **Task Management**: Monitor generation tasks in real-time
+- 📹 **Video Library**: Browse, play, and download generated videos
+- 🎨 **Modern UI**: Beautiful interface with Ant Design Vue components
+
+### Quick Start
+
+**Option 1: Use the startup script (Recommended)**
+
+```bash
+# Linux/Mac
+./start-web.sh
+
+# Windows
+start-web.bat
+```
+
+**Option 2: Manual start**
+
+```bash
+# Navigate to web interface directory
+cd web-interface
+
+# Install dependencies (both server and client)
+npm run install-all
+
+# Start development server
+npm run dev
+```
+
+Then open your browser and visit: **http://localhost:5173**
+
+For detailed instructions, see [web-interface/README.md](web-interface/README.md)
+
+### Screenshots
+
+The web interface provides three main features:
+
+1. **Generate Video**: Submit new video generation tasks with customizable options
+2. **Task List**: Monitor all generation tasks with real-time status updates
+3. **Video Library**: Browse and play all generated educational videos
 
 ---
 
