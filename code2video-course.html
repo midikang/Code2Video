@@ -1,0 +1,2387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code2Video: How It Works — An Interactive Course</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ========================================
+       DESIGN SYSTEM
+       ======================================== */
+    :root {
+      /* Backgrounds */
+      --color-bg:             #FAF7F2;
+      --color-bg-warm:        #F5F0E8;
+      --color-bg-code:        #1E1E2E;
+      --color-text:           #2C2A28;
+      --color-text-secondary: #6B6560;
+      --color-text-muted:     #9E9790;
+      --color-border:         #E5DFD6;
+      --color-border-light:   #EEEBE5;
+      --color-surface:        #FFFFFF;
+      --color-surface-warm:   #FDF9F3;
+      
+      /* Accent (coral/vermillion) */
+      --color-accent:         #D94F30;
+      --color-accent-hover:   #C4432A;
+      --color-accent-light:   #FDEEE9;
+      --color-accent-muted:   #E8836C;
+      
+      /* Semantic */
+      --color-success:        #2D8B55;
+      --color-success-light:  #E8F5EE;
+      --color-error:          #C93B3B;
+      --color-error-light:    #FDE8E8;
+      --color-info:           #2A7B9B;
+      --color-info-light:     #E4F2F7;
+      
+      /* Actor colors */
+      --color-actor-1:        #D94F30;
+      --color-actor-2:        #2A7B9B;
+      --color-actor-3:        #7B6DAA;
+      --color-actor-4:        #D4A843;
+      --color-actor-5:        #2D8B55;
+      
+      /* Typography */
+      --font-display:  'Bricolage Grotesque', Georgia, serif;
+      --font-body:     'DM Sans', -apple-system, sans-serif;
+      --font-mono:     'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+      
+      --text-xs:   0.75rem;
+      --text-sm:   0.875rem;
+      --text-base: 1rem;
+      --text-lg:   1.125rem;
+      --text-xl:   1.25rem;
+      --text-2xl:  1.5rem;
+      --text-3xl:  1.875rem;
+      --text-4xl:  2.25rem;
+      --text-5xl:  3rem;
+      --text-6xl:  3.75rem;
+      
+      --leading-tight:  1.15;
+      --leading-snug:   1.3;
+      --leading-normal: 1.6;
+      --leading-loose:  1.8;
+      
+      /* Spacing */
+      --space-1:  0.25rem;
+      --space-2:  0.5rem;
+      --space-3:  0.75rem;
+      --space-4:  1rem;
+      --space-5:  1.25rem;
+      --space-6:  1.5rem;
+      --space-8:  2rem;
+      --space-10: 2.5rem;
+      --space-12: 3rem;
+      --space-16: 4rem;
+      --space-20: 5rem;
+      --space-24: 6rem;
+      
+      --content-width:      800px;
+      --content-width-wide: 1000px;
+      --nav-height:        50px;
+      --radius-sm:  8px;
+      --radius-md:  12px;
+      --radius-lg:  16px;
+      --radius-full: 9999px;
+      
+      /* Shadows */
+      --shadow-sm:  0 1px 2px rgba(44, 42, 40, 0.05);
+      --shadow-md:  0 4px 12px rgba(44, 42, 40, 0.08);
+      --shadow-lg:  0 8px 24px rgba(44, 42, 40, 0.1);
+      --shadow-xl:  0 16px 48px rgba(44, 42, 40, 0.12);
+      
+      /* Animations */
+      --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+      --duration-fast:   150ms;
+      --duration-normal: 300ms;
+      --duration-slow:   500ms;
+      --stagger-delay:   120ms;
+    }
+    
+    /* ========================================
+       GLOBAL STYLES
+       ======================================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    html {
+      scroll-snap-type: y proximity;
+      scroll-behavior: smooth;
+    }
+    
+    body {
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      line-height: var(--leading-normal);
+      color: var(--color-text);
+      background: var(--color-bg);
+      background-image: radial-gradient(
+        ellipse at 20% 50%,
+        rgba(217, 79, 48, 0.03) 0%,
+        transparent 50%
+      );
+    }
+    
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb {
+      background: var(--color-border);
+      border-radius: var(--radius-full);
+    }
+    
+    /* Code wrapping - NO horizontal scrollbars */
+    pre, code {
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-x: hidden;
+    }
+    
+    /* ========================================
+       NAVIGATION
+       ======================================== */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--nav-height);
+      background: rgba(250, 247, 242, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--color-border-light);
+      z-index: 1000;
+    }
+    
+    .progress-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: var(--color-accent);
+      width: 0%;
+      transition: width 150ms ease-out;
+    }
+    
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--space-6);
+    }
+    
+    .nav-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: var(--text-lg);
+      color: var(--color-accent);
+    }
+    
+    .nav-dots {
+      display: flex;
+      gap: var(--space-3);
+    }
+    
+    .nav-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 2px solid var(--color-text-muted);
+      background: transparent;
+      cursor: pointer;
+      transition: all var(--duration-fast);
+      padding: 0;
+    }
+    
+    .nav-dot:hover {
+      border-color: var(--color-accent);
+      transform: scale(1.2);
+    }
+    
+    .nav-dot.current {
+      border-color: var(--color-accent);
+      background: var(--color-accent);
+      box-shadow: 0 0 0 3px var(--color-accent-light);
+    }
+    
+    .nav-dot.visited {
+      background: var(--color-accent);
+      border-color: var(--color-accent);
+    }
+    
+    /* ========================================
+       MODULE STRUCTURE
+       ======================================== */
+    .module {
+      min-height: 100vh;
+      min-height: 100dvh;
+      scroll-snap-align: start;
+      padding: var(--space-16) var(--space-6);
+      padding-top: calc(var(--nav-height) + var(--space-12));
+    }
+    
+    .module-content {
+      max-width: var(--content-width);
+      margin: 0 auto;
+    }
+    
+    .module-header {
+      margin-bottom: var(--space-12);
+    }
+    
+    .module-number {
+      font-family: var(--font-display);
+      font-size: var(--text-6xl);
+      font-weight: 800;
+      color: var(--color-accent);
+      opacity: 0.15;
+      display: block;
+      line-height: var(--leading-tight);
+    }
+    
+    .module-title {
+      font-family: var(--font-display);
+      font-size: var(--text-4xl);
+      font-weight: 700;
+      line-height: var(--leading-tight);
+      margin: var(--space-2) 0 var(--space-3);
+    }
+    
+    .module-subtitle {
+      font-size: var(--text-lg);
+      color: var(--color-text-secondary);
+      line-height: var(--leading-snug);
+    }
+    
+    .screen {
+      margin: var(--space-12) 0;
+    }
+    
+    .screen-heading {
+      font-family: var(--font-display);
+      font-size: var(--text-2xl);
+      font-weight: 600;
+      margin-bottom: var(--space-4);
+    }
+    
+    .screen p {
+      margin: var(--space-4) 0;
+      line-height: var(--leading-normal);
+    }
+    
+    /* ========================================
+       ANIMATIONS
+       ======================================== */
+    .animate-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity var(--duration-slow) var(--ease-out),
+                  transform var(--duration-slow) var(--ease-out);
+    }
+    
+    .animate-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .stagger-children > .animate-in {
+      transition-delay: calc(var(--stagger-index, 0) * var(--stagger-delay));
+    }
+    
+    /* ========================================
+       CODE TRANSLATION BLOCKS
+       ======================================== */
+    .translation-block {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      margin: var(--space-8) 0;
+    }
+    
+    .translation-code {
+      background: var(--color-bg-code);
+      color: #CDD6F4;
+      padding: var(--space-6);
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      line-height: 1.7;
+      position: relative;
+      overflow-x: hidden;
+    }
+    
+    .translation-code pre,
+    .translation-code code {
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-x: hidden;
+    }
+    
+    .translation-english {
+      background: var(--color-surface-warm);
+      padding: var(--space-6);
+      font-size: var(--text-sm);
+      line-height: 1.7;
+      border-left: 3px solid var(--color-accent);
+    }
+    
+    .translation-label {
+      position: absolute;
+      top: var(--space-2);
+      right: var(--space-3);
+      font-size: var(--text-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      opacity: 0.5;
+    }
+    
+    .translation-english .translation-label {
+      color: var(--color-text-muted);
+    }
+    
+    .translation-lines .tl {
+      margin: var(--space-3) 0;
+      padding-left: var(--space-4);
+      border-left: 2px solid var(--color-accent-light);
+    }
+    
+    /* Syntax highlighting */
+    .code-keyword  { color: #CBA6F7; }
+    .code-string   { color: #A6E3A1; }
+    .code-function { color: #89B4FA; }
+    .code-comment  { color: #6C7086; }
+    .code-number   { color: #FAB387; }
+    .code-property { color: #F9E2AF; }
+    .code-operator { color: #94E2D5; }
+    .code-tag      { color: #F38BA8; }
+    .code-attr     { color: #F9E2AF; }
+    .code-value    { color: #A6E3A1; }
+    
+    /* ========================================
+       CALLOUTS
+       ======================================== */
+    .callout {
+      display: flex;
+      gap: var(--space-4);
+      padding: var(--space-5);
+      border-radius: var(--radius-md);
+      margin: var(--space-8) 0;
+      border-left: 4px solid;
+    }
+    
+    .callout-accent {
+      background: var(--color-accent-light);
+      border-color: var(--color-accent);
+    }
+    
+    .callout-info {
+      background: var(--color-info-light);
+      border-color: var(--color-info);
+    }
+    
+    .callout-icon {
+      font-size: var(--text-3xl);
+      flex-shrink: 0;
+    }
+    
+    .callout-title {
+      font-family: var(--font-display);
+      font-weight: 600;
+      display: block;
+      margin-bottom: var(--space-2);
+    }
+    
+    /* ========================================
+       PATTERN CARDS
+       ======================================== */
+    .pattern-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: var(--space-4);
+      margin: var(--space-8) 0;
+    }
+    
+    .pattern-card {
+      background: var(--color-surface);
+      border-radius: var(--radius-md);
+      padding: var(--space-6);
+      box-shadow: var(--shadow-sm);
+      transition: transform var(--duration-normal) var(--ease-out), box-shadow var(--duration-normal);
+      border-top: 3px solid;
+    }
+    
+    .pattern-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .pattern-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-2xl);
+      margin-bottom: var(--space-3);
+    }
+    
+    .pattern-title {
+      font-family: var(--font-display);
+      font-weight: 600;
+      margin-bottom: var(--space-2);
+    }
+    
+    .pattern-desc {
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+      line-height: var(--leading-normal);
+    }
+    
+    /* ========================================
+       GLOSSARY TOOLTIPS
+       ======================================== */
+    .term {
+      border-bottom: 1.5px dashed var(--color-accent-muted);
+      cursor: pointer;
+      position: relative;
+    }
+    
+    .term:hover, .term.active {
+      border-bottom-color: var(--color-accent);
+      color: var(--color-accent);
+    }
+    
+    .term-tooltip {
+      position: fixed;
+      background: var(--color-bg-code);
+      color: #CDD6F4;
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-sm);
+      font-size: var(--text-sm);
+      font-family: var(--font-body);
+      line-height: var(--leading-normal);
+      width: max(200px, min(320px, 80vw));
+      box-shadow: var(--shadow-lg);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity var(--duration-fast);
+      z-index: 10000;
+    }
+    
+    .term-tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: var(--color-bg-code);
+    }
+    
+    .term-tooltip.visible {
+      opacity: 1;
+    }
+    
+    .term-tooltip.flip {
+      bottom: auto;
+      top: calc(100% + 8px);
+    }
+    
+    .term-tooltip.flip::after {
+      top: auto;
+      bottom: 100%;
+      border-top-color: transparent;
+      border-bottom-color: var(--color-bg-code);
+    }
+    
+    /* ========================================
+       STEP CARDS
+       ======================================== */
+    .step-cards {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      margin: var(--space-8) 0;
+    }
+    
+    .step-card {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-4);
+      padding: var(--space-4) var(--space-5);
+      background: var(--color-surface);
+      border-radius: var(--radius-md);
+      border-left: 3px solid var(--color-accent);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .step-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      color: white;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      flex-shrink: 0;
+    }
+    
+    .step-body strong {
+      display: block;
+      margin-bottom: var(--space-1);
+    }
+    
+    .step-body p {
+      margin: var(--space-1) 0 0;
+      color: var(--color-text-secondary);
+      font-size: var(--text-sm);
+    }
+    
+    /* ========================================
+       ICON ROWS
+       ======================================== */
+    .icon-rows {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+      margin: var(--space-8) 0;
+    }
+    
+    .icon-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      padding: var(--space-4);
+      background: var(--color-surface);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .icon-row p {
+      margin: 0;
+      color: var(--color-text-secondary);
+      font-size: var(--text-sm);
+    }
+    
+    .icon-circle {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+    
+    /* ========================================
+       CHAT ANIMATION
+       ======================================== */
+    .chat-window {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: var(--space-6);
+      margin: var(--space-8) 0;
+      max-width: 600px;
+    }
+    
+    .chat-messages {
+      min-height: 300px;
+      max-height: 400px;
+      overflow-y: auto;
+      padding: var(--space-4);
+    }
+    
+    .chat-message {
+      display: flex;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+      align-items: flex-start;
+    }
+    
+    .chat-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: var(--text-sm);
+      flex-shrink: 0;
+    }
+    
+    .chat-bubble {
+      background: var(--color-bg);
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-md);
+      max-width: 400px;
+    }
+    
+    .chat-sender {
+      font-weight: 600;
+      font-size: var(--text-sm);
+      display: block;
+      margin-bottom: var(--space-1);
+    }
+    
+    .chat-bubble p {
+      margin: 0;
+      font-size: var(--text-sm);
+    }
+    
+    .chat-typing {
+      display: none;
+      gap: var(--space-3);
+      align-items: center;
+      margin-top: var(--space-4);
+    }
+    
+    .chat-typing-dots {
+      display: flex;
+      gap: var(--space-1);
+      padding: var(--space-2) var(--space-3);
+      background: var(--color-bg);
+      border-radius: var(--radius-md);
+    }
+    
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--color-text-muted);
+      animation: typingBounce 1.4s infinite;
+    }
+    
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    
+    @keyframes typingBounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-6px); }
+    }
+    
+    .chat-controls {
+      display: flex;
+      gap: var(--space-3);
+      margin-top: var(--space-4);
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    
+    .chat-controls button {
+      padding: var(--space-2) var(--space-4);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      background: var(--color-surface);
+      color: var(--color-text);
+      cursor: pointer;
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      transition: all var(--duration-fast);
+    }
+    
+    .chat-controls button:hover {
+      border-color: var(--color-accent);
+      background: var(--color-accent-light);
+    }
+    
+    .chat-progress {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+    }
+    
+    /* ========================================
+       QUIZ
+       ======================================== */
+    .quiz-container {
+      margin: var(--space-8) 0;
+    }
+    
+    .quiz-question-block {
+      margin: var(--space-6) 0;
+      padding: var(--space-6);
+      background: var(--color-surface);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .quiz-question {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: var(--text-lg);
+      margin-bottom: var(--space-4);
+    }
+    
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+    
+    .quiz-option {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      background: var(--color-surface);
+      cursor: pointer;
+      width: 100%;
+      transition: border-color var(--duration-fast), background var(--duration-fast);
+      text-align: left;
+    }
+    
+    .quiz-option:hover {
+      border-color: var(--color-accent-muted);
+    }
+    
+    .quiz-option.selected {
+      border-color: var(--color-accent);
+      background: var(--color-accent-light);
+    }
+    
+    .quiz-option.correct {
+      border-color: var(--color-success);
+      background: var(--color-success-light);
+    }
+    
+    .quiz-option.incorrect {
+      border-color: var(--color-error);
+      background: var(--color-error-light);
+    }
+    
+    .quiz-option:disabled {
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+    
+    .quiz-option-radio {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid var(--color-border);
+      transition: all var(--duration-fast);
+      flex-shrink: 0;
+    }
+    
+    .quiz-option.selected .quiz-option-radio {
+      border-color: var(--color-accent);
+      background: var(--color-accent);
+      box-shadow: inset 0 0 0 3px white;
+    }
+    
+    .quiz-feedback {
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: max-height var(--duration-normal), opacity var(--duration-normal);
+    }
+    
+    .quiz-feedback.show {
+      max-height: 200px;
+      opacity: 1;
+      padding: var(--space-3);
+      margin-top: var(--space-3);
+      border-radius: var(--radius-sm);
+    }
+    
+    .quiz-feedback.success {
+      background: var(--color-success-light);
+      color: var(--color-success);
+    }
+    
+    .quiz-feedback.error {
+      background: var(--color-error-light);
+      color: var(--color-error);
+    }
+    
+    .quiz-feedback.warning {
+      background: var(--color-info-light);
+      color: var(--color-info);
+    }
+    
+    .quiz-check-btn, .quiz-reset-btn {
+      padding: var(--space-3) var(--space-6);
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: var(--text-base);
+      cursor: pointer;
+      transition: all var(--duration-fast);
+      margin: var(--space-4) var(--space-2) 0 0;
+    }
+    
+    .quiz-check-btn {
+      background: var(--color-accent);
+      color: white;
+    }
+    
+    .quiz-check-btn:hover {
+      background: var(--color-accent-hover);
+    }
+    
+    .quiz-reset-btn {
+      background: var(--color-border);
+      color: var(--color-text);
+    }
+    
+    .quiz-reset-btn:hover {
+      background: var(--color-border-light);
+    }
+    
+    /* ========================================
+       FLOW ANIMATION
+       ======================================== */
+    .flow-animation {
+      margin: var(--space-8) 0;
+      padding: var(--space-8);
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .flow-actors {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: var(--space-8);
+      position: relative;
+    }
+    
+    .flow-actor {
+      text-align: center;
+      transition: all var(--duration-normal) var(--ease-out);
+    }
+    
+    .flow-actor-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--color-bg-warm);
+      border: 3px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      margin: 0 auto var(--space-2);
+      transition: all var(--duration-normal) var(--ease-out);
+    }
+    
+    .flow-actor.active .flow-actor-icon {
+      box-shadow: 0 0 0 4px var(--color-accent), 0 0 20px rgba(217, 79, 48, 0.2);
+      transform: scale(1.1);
+      border-color: var(--color-accent);
+    }
+    
+    .flow-step-label {
+      text-align: center;
+      font-size: var(--text-lg);
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-4);
+      background: var(--color-bg-warm);
+      border-radius: var(--radius-md);
+      margin: var(--space-6) 0;
+    }
+    
+    .flow-controls {
+      display: flex;
+      gap: var(--space-3);
+      justify-content: center;
+      align-items: center;
+      margin-top: var(--space-6);
+    }
+    
+    .flow-controls button {
+      padding: var(--space-2) var(--space-4);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      background: var(--color-surface);
+      color: var(--color-text);
+      cursor: pointer;
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      transition: all var(--duration-fast);
+    }
+    
+    .flow-controls button:hover {
+      border-color: var(--color-accent);
+      background: var(--color-accent-light);
+    }
+    
+    .flow-progress {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+    }
+    
+    /* ========================================
+       RESPONSIVE
+       ======================================== */
+    @media (max-width: 768px) {
+      :root {
+        --text-4xl: 1.875rem;
+        --text-5xl: 2.25rem;
+        --text-6xl: 3rem;
+      }
+      
+      .module {
+        padding: var(--space-8) var(--space-4);
+        padding-top: calc(var(--nav-height) + var(--space-8));
+      }
+      
+      .translation-block {
+        grid-template-columns: 1fr;
+      }
+      
+      .translation-english {
+        border-left: none;
+        border-top: 3px solid var(--color-accent);
+      }
+      
+      .pattern-cards {
+        grid-template-columns: 1fr;
+      }
+      
+      .nav-title {
+        font-size: var(--text-base);
+      }
+      
+      .nav-dots {
+        gap: var(--space-2);
+      }
+      
+      .nav-dot {
+        width: 8px;
+        height: 8px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      :root {
+        --text-4xl: 1.5rem;
+        --text-5xl: 1.875rem;
+        --text-6xl: 2.25rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="progress-bar" role="progressbar" aria-valuenow="0"></div>
+    <div class="nav-inner">
+      <span class="nav-title">Code2Video</span>
+      <div class="nav-dots">
+        <button class="nav-dot current" data-target="module-1" aria-label="Module 1"></button>
+        <button class="nav-dot" data-target="module-2" aria-label="Module 2"></button>
+        <button class="nav-dot" data-target="module-3" aria-label="Module 3"></button>
+        <button class="nav-dot" data-target="module-4" aria-label="Module 4"></button>
+        <button class="nav-dot" data-target="module-5" aria-label="Module 5"></button>
+        <button class="nav-dot" data-target="module-6" aria-label="Module 6"></button>
+      </div>
+    </div>
+  </nav>
+
+
+  <!-- Module 1: Introduction -->
+  <section class="module" id="module-1" style="background: var(--color-bg)">
+    <div class="module-content">
+      <header class="module-header animate-in">
+        <span class="module-number">01</span>
+        <h1 class="module-title">From Text to Teaching: What Code2Video Does</h1>
+        <p class="module-subtitle">Understanding how AI turns knowledge points into educational videos</p>
+      </header>
+
+      <div class="module-body">
+        <section class="screen animate-in">
+          <h2 class="screen-heading">What This System Does</h2>
+          <p>Code2Video is an AI-powered system that transforms <span class="term" data-definition="A knowledge point is a single concept or topic you want to teach - like 'How sorting algorithms work' or 'Understanding transformers in machine learning.'">knowledge points</span> into complete educational videos. Imagine typing "Explain how neural networks work" and getting back a polished 5-minute animated explainer video with voiceover, visualizations, and smooth transitions.</p>
+          
+          <div class="step-cards">
+            <div class="step-card">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <strong>You provide a topic</strong>
+                <p>Type a concept you want explained — "Linear transformations and matrices" or "How Bitcoin mining works"</p>
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <strong>AI creates a teaching outline</strong>
+                <p>The system breaks your topic into learnable sections, like chapters in a textbook</p>
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">3</div>
+              <div class="step-body">
+                <strong>AI generates animation code</strong>
+                <p>Each section becomes executable Python code using <span class="term" data-definition="Manim is a mathematical animation engine created by 3Blue1Brown. It generates animations through code rather than GUI tools - think of it as writing instructions for an animator instead of drawing frames yourself.">Manim</span></p>
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">4</div>
+              <div class="step-body">
+                <strong>Code becomes video</strong>
+                <p>The Python code executes, rendering animated scenes into MP4 video files</p>
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">5</div>
+              <div class="step-body">
+                <strong>Videos merge into final output</strong>
+                <p>All sections combine into one cohesive educational video with smooth transitions</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen animate-in">
+          <h2 class="screen-heading">Why This Matters</h2>
+          <p>Traditional video generation approaches use <span class="term" data-definition="Pixel-based models like Stable Diffusion or DALL-E work by predicting individual pixels. They can hallucinate details and produce inconsistent results because they don't understand the underlying structure.">pixel-based text-to-video models</span> — systems that predict what pixels should look like based on text descriptions. Code2Video takes a different approach: instead of guessing at pixels, it generates <strong>executable code</strong> that produces mathematically precise animations.</p>
+          
+          <div class="callout callout-accent">
+            <div class="callout-icon">💡</div>
+            <div class="callout-content">
+              <strong class="callout-title">Key Insight: Code as the Medium</strong>
+              <p>By using code instead of pixels, Code2Video ensures accuracy, reproducibility, and clarity. The animations are never "hallucinated" — they're calculated. This is like the difference between asking an artist to draw a graph versus using Excel to plot exact data points.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen animate-in">
+          <h2 class="screen-heading">Quiz: Test Your Understanding</h2>
+          <div class="quiz-container">
+            <div class="quiz-question-block" data-question="q1-1" data-correct="option-b">
+              <h3 class="quiz-question">You want to create a video explaining calculus derivatives. What's the advantage of Code2Video's approach over pixel-based video generation?</h3>
+              <div class="quiz-options">
+                <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>It generates videos faster</span>
+                </button>
+                <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>The mathematical animations are guaranteed to be accurate, not guessed</span>
+                </button>
+                <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>It requires less computing power</span>
+                </button>
+              </div>
+              <div class="quiz-feedback" id="q1-1-feedback"></div>
+            </div>
+
+            <div class="quiz-question-block" data-question="q1-2" data-correct="option-c">
+              <h3 class="quiz-question">If you wanted to add a feature that lets users change the color scheme of generated videos, where would this be easiest with Code2Video's approach?</h3>
+              <div class="quiz-options">
+                <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>Re-run the pixel generation with a different prompt</span>
+                </button>
+                <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>Use video editing software to change colors</span>
+                </button>
+                <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>Modify the Manim code parameters and re-render — colors are just variables</span>
+                </button>
+              </div>
+              <div class="quiz-feedback" id="q1-2-feedback"></div>
+            </div>
+
+            <button class="quiz-check-btn" onclick="checkQuiz('module-1')">Check Answers</button>
+            <button class="quiz-reset-btn" onclick="resetQuiz('module-1')">Try Again</button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Module 2: Meet the Agents -->
+  <section class="module" id="module-2" style="background: var(--color-bg-warm)">
+    <div class="module-content">
+      <header class="module-header animate-in">
+        <span class="module-number">02</span>
+        <h1 class="module-title">Meet the Agents: Who Does What</h1>
+        <p class="module-subtitle">Understanding the three AI components that orchestrate video generation</p>
+      </header>
+
+      <div class="module-body">
+        <section class="screen animate-in">
+          <h2 class="screen-heading">The Three Main Actors</h2>
+          <p>Code2Video isn't a single AI — it's a team of three specialized agents working together. Think of it like a film production: you need a director, a writer, and an editor. Here's who does what:</p>
+
+          <div class="icon-rows">
+            <div class="icon-row">
+              <div class="icon-circle" style="background: var(--color-actor-1); color: white;">🎬</div>
+              <div>
+                <strong>TeachingVideoAgent</strong>
+                <p>The orchestrator. Coordinates the entire pipeline from topic to final video. Manages outline generation, storyboard creation, code generation, and video assembly.</p>
+              </div>
+            </div>
+            <div class="icon-row">
+              <div class="icon-circle" style="background: var(--color-actor-2); color: white;">🧠</div>
+              <div>
+                <strong>LLM API Layer</strong>
+                <p>The intelligence hub. Abstracts calls to Claude, GPT-4, and Gemini. Handles retries, token tracking, and model-specific formatting. Lives in <code>gpt_request.py</code>.</p>
+              </div>
+            </div>
+            <div class="icon-row">
+              <div class="icon-circle" style="background: var(--color-actor-3); color: white;">🔧</div>
+              <div>
+                <strong>ScopeRefineFixer</strong>
+                <p>The debugger. Analyzes Manim code errors and fixes them intelligently. Uses a 3-tier strategy: single-line fixes, function-level fixes, and section-level regeneration.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen animate-in">
+          <h2 class="screen-heading">How They Talk to Each Other</h2>
+          <p>These agents communicate through a structured workflow. Let's watch a simplified conversation between them as they process a knowledge point:</p>
+
+          <div class="chat-window">
+            <div class="chat-messages" id="chat-messages-2">
+              <!-- Messages will be added dynamically -->
+            </div>
+            <div class="chat-typing" id="chat-typing-2">
+              <div class="chat-avatar" style="background: var(--color-text-muted);">⏳</div>
+              <div class="chat-typing-dots">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+              </div>
+            </div>
+            <div class="chat-controls">
+              <button onclick="startChat('chat-2')">Start Conversation</button>
+              <button onclick="resetChat('chat-2')">Reset</button>
+              <span class="chat-progress" id="chat-progress-2">Ready to begin</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen animate-in">
+          <h2 class="screen-heading">Inside TeachingVideoAgent.generate_outline()</h2>
+          <p>Let's see real code from the orchestrator. This method shows how the <span class="term" data-definition="TeachingVideoAgent is the main coordinator in Code2Video. It manages the entire pipeline: outline → storyboard → code → video → merge. It delegates work to LLMs and handles errors through ScopeRefineFixer.">TeachingVideoAgent</span> calls the LLM API to create a teaching outline:</p>
+
+          <div class="translation-block">
+            <div class="translation-code">
+              <span class="translation-label">Python</span>
+<pre><code><span class="code-keyword">def</span> <span class="code-function">generate_outline</span>(self) -> TeachingOutline:
+    outline_file = self.output_dir / <span class="code-string">"outline.json"</span>
+
+    <span class="code-keyword">if</span> outline_file.exists():
+        <span class="code-keyword">with</span> open(outline_file, <span class="code-string">"r"</span>) <span class="code-keyword">as</span> f:
+            outline_data = json.load(f)
+    <span class="code-keyword">else</span>:
+        prompt1 = get_prompt1_outline(
+            knowledge_point=self.learning_topic
+        )
+
+        <span class="code-keyword">for</span> attempt <span class="code-keyword">in</span> range(<span class="code-number">1</span>, self.max_regenerate_tries + <span class="code-number">1</span>):
+            response = self._request_api_and_track_tokens(
+                prompt1, max_tokens=self.max_code_token_length
+            )
+            <span class="code-keyword">try</span>:
+                content = response.candidates[<span class="code-number">0</span>].content.parts[<span class="code-number">0</span>].text
+                outline_data = json.loads(content)
+                <span class="code-keyword">break</span>
+            <span class="code-keyword">except</span> json.JSONDecodeError:
+                <span class="code-keyword">if</span> attempt == self.max_regenerate_tries:
+                    <span class="code-keyword">raise</span></code></pre>
+            </div>
+            <div class="translation-english">
+              <span class="translation-label">What it means</span>
+              <div class="translation-lines">
+                <div class="tl"><strong>Check if we already generated an outline:</strong> If the JSON file exists, just load it (caching for efficiency).</div>
+                <div class="tl"><strong>Otherwise, ask the LLM:</strong> Send a prompt asking the AI to break the topic into teachable sections.</div>
+                <div class="tl"><strong>Retry logic:</strong> Try up to <code>max_regenerate_tries</code> times. If the AI returns invalid JSON, try again.</div>
+                <div class="tl"><strong>Token tracking wrapper:</strong> The <code>_request_api_and_track_tokens</code> method automatically counts how many tokens we've used (important for cost estimation).</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen animate-in">
+          <h2 class="screen-heading">Quiz: Understanding Agent Responsibilities</h2>
+          <div class="quiz-container">
+            <div class="quiz-question-block" data-question="q2-1" data-correct="option-b">
+              <h3 class="quiz-question">You notice that Code2Video is making 10 API calls to fix a syntax error in generated Manim code. Which agent is responsible for this?</h3>
+              <div class="quiz-options">
+                <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>TeachingVideoAgent — it orchestrates everything</span>
+                </button>
+                <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>ScopeRefineFixer — it analyzes errors and generates fixes</span>
+                </button>
+                <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>LLM API Layer — it handles all AI interactions</span>
+                </button>
+              </div>
+              <div class="quiz-feedback" id="q2-1-feedback"></div>
+            </div>
+
+            <div class="quiz-question-block" data-question="q2-2" data-correct="option-c">
+              <h3 class="quiz-question">If you wanted to add support for a new LLM provider (e.g., Anthropic's Claude 5), where would you make changes?</h3>
+              <div class="quiz-options">
+                <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>TeachingVideoAgent — it controls which models are used</span>
+                </button>
+                <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>ScopeRefineFixer — it needs to know about the new model</span>
+                </button>
+                <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>LLM API Layer (gpt_request.py) — it abstracts all model interactions</span>
+                </button>
+              </div>
+              <div class="quiz-feedback" id="q2-2-feedback"></div>
+            </div>
+
+            <button class="quiz-check-btn" onclick="checkQuiz('module-2')">Check Answers</button>
+            <button class="quiz-reset-btn" onclick="resetQuiz('module-2')">Try Again</button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Module 3: The Video Generation Pipeline -->
+  <section class="module" id="module-3" style="background: var(--color-bg)">
+    <div class="module-content">
+      <header class="module-header animate-in">
+        <span class="module-number">03</span>
+        <h1 class="module-title">The Video Generation Pipeline</h1>
+        <p class="module-subtitle">Following data through the 5-stage transformation process</p>
+      </header>
+
+      <div class="module-body">
+        <section class="screen animate-in">
+          <h2 class="screen-heading">The Five Stages</h2>
+          <p>Every educational video goes through this exact pipeline. Each stage transforms the data into a more concrete representation:</p>
+
+          <div class="flow-animation" id="flow-animation-3">
+            <div class="flow-actors">
+              <div class="flow-actor" data-step="0">
+                <div class="flow-actor-icon">📝</div>
+                <div>Topic</div>
+              </div>
+              <div class="flow-actor" data-step="1">
+                <div class="flow-actor-icon">📋</div>
+                <div>Outline</div>
+              </div>
+              <div class="flow-actor" data-step="2">
+                <div class="flow-actor-icon">🎬</div>
+                <div>Storyboard</div>
+              </div>
+              <div class="flow-actor" data-step="3">
+                <div class="flow-actor-icon">💻</div>
+                <div>Code</div>
+              </div>
+              <div class="flow-actor" data-step="4">
+                <div class="flow-actor-icon">🎥</div>
+                <div>Video</div>
+              </div>
+            </div>
+
+            <div class="flow-step-label" id="flow-label-3">
+              Click "Start" to see the pipeline in action
+            </div>
+
+            <div class="flow-controls">
+              <button onclick="startFlow('flow-3')">Start Pipeline</button>
+              <button onclick="resetFlow('flow-3')">Reset</button>
+              <span class="flow-progress" id="flow-progress-3">Ready</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen animate-in">
+          <h2 class="screen-heading">Stage 2: Storyboard Generation</h2>
+          <p>The <span class="term" data-definition="A storyboard in Code2Video is a JSON structure that describes each section of the video. It includes lecture_lines (what the narrator says) and animations (what visual elements appear). Think of it as a detailed script for a movie scene.">storyboard</span> is where abstract concepts become concrete animation instructions. Here's how the agent generates it:</p>
+
+          <div class="translation-block">
+            <div class="translation-code">
+              <span class="translation-label">Python</span>
+<pre><code><span class="code-keyword">def</span> <span class="code-function">generate_storyboard</span>(self) -> List[Section]:
+    storyboard_file = self.output_dir / <span class="code-string">"storyboard.json"</span>
+
+    <span class="code-keyword">if</span> storyboard_file.exists():
+        <span class="code-keyword">with</span> open(storyboard_file, <span class="code-string">"r"</span>) <span class="code-keyword">as</span> f:
+            storyboard_data = json.load(f)
+    <span class="code-keyword">else</span>:
+        prompt2 = get_prompt2_storyboard(
+            outline=json.dumps(self.outline.__dict__)
+        )
+
+        response = self._request_api_and_track_tokens(
+            prompt2, max_tokens=self.max_code_token_length
+        )
+
+        json_str = extract_json_from_markdown(content)
+        storyboard_data = json.loads(json_str)
+
+        <span class="code-comment"># Save original storyboard</span>
+        <span class="code-keyword">with</span> open(storyboard_file, <span class="code-string">"w"</span>) <span class="code-keyword">as</span> f:
+            json.dump(storyboard_data, f)
+
+    <span class="code-comment"># Parse into Section objects</span>
+    self.sections = []
+    <span class="code-keyword">for</span> section_data <span class="code-keyword">in</span> storyboard_data[<span class="code-string">"sections"</span>]:
+        section = Section(
+            id=section_data[<span class="code-string">"id"</span>],
+            title=section_data[<span class="code-string">"title"</span>],
+            animations=section_data[<span class="code-string">"animations"</span>]
+        )
+        self.sections.append(section)</code></pre>
+            </div>
+            <div class="translation-english">
+              <span class="translation-label">What it means</span>
+              <div class="translation-lines">
+                <div class="tl"><strong>Check cache first:</strong> Like outline generation, we reuse existing storyboards to avoid redundant API calls.</div>
+                <div class="tl"><strong>Prompt construction:</strong> Pass the outline JSON to the LLM and ask it to create detailed animation descriptions for each section.</div>
+                <div class="tl"><strong>Extract JSON from markdown:</strong> LLMs often wrap JSON in markdown code blocks — we strip that formatting.</div>
+                <div class="tl"><strong>Parse into Section objects:</strong> Convert the raw JSON into Python dataclasses that the rest of the pipeline can work with.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen animate-in">
+          <h2 class="screen-heading">The Three Roles in Generation</h2>
+          <p>Within the pipeline, there's a pattern that repeats: <strong>Plan → Code → Critique</strong>. These roles help ensure quality:</p>
+
+          <div class="pattern-cards">
+            <div class="pattern-card" style="border-color: var(--color-actor-4);">
+              <div class="pattern-icon" style="background: rgba(212, 168, 67, 0.2); color: var(--color-actor-4);">📐</div>
+              <div class="pattern-title">Planner</div>
+              <div class="pattern-desc">Creates outlines and storyboards. Decides what concepts to teach and in what order. Example: generating the teaching outline from a knowledge point.</div>
+            </div>
+            <div class="pattern-card" style="border-color: var(--color-actor-5);">
+              <div class="pattern-icon" style="background: rgba(45, 139, 85, 0.2); color: var(--color-actor-5);">💻</div>
+              <div class="pattern-title">Coder</div>
+              <div class="pattern-desc">Translates animation descriptions into executable Manim code. Generates Python that produces visual scenes. Example: <code>generate_section_code()</code>.</div>
+            </div>
+            <div class="pattern-card" style="border-color: var(--color-actor-3);">
+              <div class="pattern-icon" style="background: rgba(123, 109, 170, 0.2); color: var(--color-actor-3);">🔍</div>
+              <div class="pattern-title">Critic</div>
+              <div class="pattern-desc">Evaluates generated videos using multimodal LLMs (Gemini). Provides feedback on layout, clarity, and visual quality. Example: <code>get_mllm_feedback()</code>.</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen animate-in">
+          <h2 class="screen-heading">Quiz: Pipeline Understanding</h2>
+          <div class="quiz-container">
+            <div class="quiz-question-block" data-question="q3-1" data-correct="option-b">
+              <h3 class="quiz-question">A user reports that videos have correct content but poor visual layout (overlapping text). Which stage should you investigate?</h3>
+              <div class="quiz-options">
+                <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>Outline generation — the content structure is wrong</span>
+                </button>
+                <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>Code generation or Critic feedback — layout is determined by Manim code</span>
+                </button>
+                <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>Storyboard generation — animation descriptions are incomplete</span>
+                </button>
+              </div>
+              <div class="quiz-feedback" id="q3-1-feedback"></div>
+            </div>
+
+            <div class="quiz-question-block" data-question="q3-2" data-correct="option-c">
+              <h3 class="quiz-question">If you wanted to add a new stage that generates audio narration, where in the pipeline would it make sense to insert it?</h3>
+              <div class="quiz-options">
+                <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>Between Topic and Outline — narration needs to be planned first</span>
+                </button>
+                <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>Between Storyboard and Code — narration determines what animations to create</span>
+                </button>
+                <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>After Video generation — narration uses lecture_lines from the storyboard</span>
+                </button>
+              </div>
+              <div class="quiz-feedback" id="q3-2-feedback"></div>
+            </div>
+
+            <button class="quiz-check-btn" onclick="checkQuiz('module-3')">Check Answers</button>
+            <button class="quiz-reset-btn" onclick="resetQuiz('module-3')">Try Again</button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Module 4: The LLM Orchestra -->
+  <section class="module" id="module-4" style="background: var(--color-bg-warm)">
+    <div class="module-content">
+      <header class="module-header animate-in">
+        <span class="module-number">04</span>
+        <h1 class="module-title">The LLM Orchestra</h1>
+        <p class="module-subtitle">How multiple AI models work together through a unified API</p>
+      </header>
+
+      <div class="module-body">
+        <section class="screen animate-in">
+          <h2 class="screen-heading">Why Multiple Models?</h2>
+          <p>Code2Video doesn't rely on a single AI model. Instead, it can use <span class="term" data-definition="Claude is Anthropic's family of large language models. Code2Video supports Claude 4 Opus for high-quality text generation with strong reasoning capabilities.">Claude</span>, <span class="term" data-definition="GPT-4 and GPT-5 are OpenAI's flagship models. Code2Video uses them for code generation and complex reasoning tasks. GPT-4o provides a good balance of speed and capability.">GPT-4/GPT-5</span>, or <span class="term" data-definition="Gemini is Google's multimodal AI model. Code2Video uses Gemini 2.5 Pro for video analysis and feedback — it can 'watch' generated videos and suggest improvements.">Gemini</span> depending on the task. Why?</p>
+
+          <div class="icon-rows">
+            <div class="icon-row">
+              <div class="icon-circle" style="background: #8E6F3E; color: white;">🧠</div>
+              <div>
+                <strong>Claude (Anthropic)</strong>
+                <p>Best for: Long-form reasoning, educational content planning. Used for outline and storyboard generation when depth matters.</p>
+              </div>
+            </div>
+            <div class="icon-row">
+              <div class="icon-circle" style="background: #10A37F; color: white;">💬</div>
+              <div>
+                <strong>GPT-4/GPT-5 (OpenAI)</strong>
+                <p>Best for: Code generation, function-level reasoning. Fast and reliable for translating animation descriptions into Python.</p>
+              </div>
+            </div>
+            <div class="icon-row">
+              <div class="icon-circle" style="background: #4285F4; color: white;">👁️</div>
+              <div>
+                <strong>Gemini (Google)</strong>
+                <p>Best for: Multimodal analysis. Can watch videos and provide feedback on visual layout, timing, and clarity. Unique capability.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen animate-in">
+          <h2 class="screen-heading">The API Abstraction Layer</h2>
+          <p>The <code>gpt_request.py</code> file abstracts all model interactions. This means the rest of the codebase doesn't need to know which model is being used. Here's the pattern:</p>
+
+          <div class="translation-block">
+            <div class="translation-code">
+              <span class="translation-label">Python</span>
+<pre><code><span class="code-keyword">def</span> <span class="code-function">request_claude_token</span>(prompt, max_tokens=<span class="code-number">10000</span>, max_retries=<span class="code-number">3</span>):
+    base_url = cfg(<span class="code-string">"claude"</span>, <span class="code-string">"base_url"</span>)
+    api_key = cfg(<span class="code-string">"claude"</span>, <span class="code-string">"api_key"</span>)
+    client = OpenAI(base_url=base_url, api_key=api_key)
+
+    usage_info = {
+        <span class="code-string">"prompt_tokens"</span>: <span class="code-number">0</span>,
+        <span class="code-string">"completion_tokens"</span>: <span class="code-number">0</span>,
+        <span class="code-string">"total_tokens"</span>: <span class="code-number">0</span>
+    }
+
+    retry_count = <span class="code-number">0</span>
+    <span class="code-keyword">while</span> retry_count < max_retries:
+        <span class="code-keyword">try</span>:
+            completion = client.chat.completions.create(
+                model=<span class="code-string">"claude-4-opus"</span>,
+                messages=[{<span class="code-string">"role"</span>: <span class="code-string">"user"</span>, <span class="code-string">"content"</span>: prompt}],
+                max_tokens=max_tokens
+            )
+
+            <span class="code-keyword">if</span> completion.usage:
+                usage_info[<span class="code-string">"prompt_tokens"</span>] = completion.usage.prompt_tokens
+                usage_info[<span class="code-string">"completion_tokens"</span>] = completion.usage.completion_tokens
+                usage_info[<span class="code-string">"total_tokens"</span>] = completion.usage.total_tokens
+
+            <span class="code-keyword">return</span> completion, usage_info
+
+        <span class="code-keyword">except</span> Exception <span class="code-keyword">as</span> e:
+            retry_count += <span class="code-number">1</span>
+            delay = (<span class="code-number">2</span>**retry_count) * <span class="code-number">0.1</span> + random.random() * <span class="code-number">0.1</span>
+            time.sleep(delay)</code></pre>
+            </div>
+            <div class="translation-english">
+              <span class="translation-label">What it means</span>
+              <div class="translation-lines">
+                <div class="tl"><strong>Configuration loading:</strong> Read API keys and endpoints from <code>api_config.json</code> so they're not hardcoded.</div>
+                <div class="tl"><strong>Token tracking:</strong> Every API call records how many tokens were used for prompt (input) and completion (output). This data flows back to TeachingVideoAgent.</div>
+                <div class="tl"><strong>Exponential backoff retry:</strong> If the API fails (rate limit, network error), wait progressively longer before retrying (0.2s, 0.4s, 0.8s).</div>
+                <div class="tl"><strong>Unified interface:</strong> Notice this has the same signature as <code>request_gpt4o_token()</code> and <code>request_gemini_token()</code> — interchangeable!</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen animate-in">
+          <h2 class="screen-heading">Token Tracking Matters</h2>
+          <div class="callout callout-info">
+            <div class="callout-icon">💰</div>
+            <div class="callout-content">
+              <strong class="callout-title">Why count tokens?</strong>
+              <p>LLM APIs charge by the token. A single video might use 50,000+ tokens across all stages (outline, storyboard, code, feedback). By tracking usage, Code2Video can estimate costs and optimize which models to use for which tasks. For example, using GPT-4o for code generation and Gemini only for video critique balances quality and cost.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen animate-in">
+          <h2 class="screen-heading">Quiz: API Architecture</h2>
+          <div class="quiz-container">
+            <div class="quiz-question-block" data-question="q4-1" data-correct="option-c">
+              <h3 class="quiz-question">You want to reduce costs by using a cheaper model for outline generation. Where would you make this change?</h3>
+              <div class="quiz-options">
+                <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>Modify TeachingVideoAgent.generate_outline() to call a different function</span>
+                </button>
+                <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>Edit the prompt to be shorter (fewer tokens = cheaper)</span>
+                </button>
+                <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>Change the RunConfig.api parameter to point to a different model's request function</span>
+                </button>
+              </div>
+              <div class="quiz-feedback" id="q4-1-feedback"></div>
+            </div>
+
+            <div class="quiz-question-block" data-question="q4-2" data-correct="option-b">
+              <h3 class="quiz-question">An API call fails with a 429 rate limit error. What does the retry logic do?</h3>
+              <div class="quiz-options">
+                <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>Immediately retry 3 times as fast as possible</span>
+                </button>
+                <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>Wait with exponential backoff (0.2s, 0.4s, 0.8s) before retrying</span>
+                </button>
+                <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>Switch to a different API provider automatically</span>
+                </button>
+              </div>
+              <div class="quiz-feedback" id="q4-2-feedback"></div>
+            </div>
+
+            <button class="quiz-check-btn" onclick="checkQuiz('module-4')">Check Answers</button>
+            <button class="quiz-reset-btn" onclick="resetQuiz('module-4')">Try Again</button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Module 5: Error Fixing Intelligence -->
+  <section class="module" id="module-5" style="background: var(--color-bg)">
+    <div class="module-content">
+      <header class="module-header animate-in">
+        <span class="module-number">05</span>
+        <h1 class="module-title">Error Fixing Intelligence</h1>
+        <p class="module-subtitle">How ScopeRefineFixer debugs generated code automatically</p>
+      </header>
+
+      <div class="module-body">
+        <section class="screen animate-in">
+          <h2 class="screen-heading">The Problem: AI-Generated Code Isn't Perfect</h2>
+          <p>When an LLM generates Manim animation code, it might produce syntax errors, use undefined variables, or call methods that don't exist. Traditional approaches would just regenerate the entire code from scratch — wasteful and slow. <span class="term" data-definition="ScopeRefineFixer is Code2Video's intelligent error correction system. It analyzes Python errors, categorizes them, and applies targeted fixes at three levels of scope: single line, function, or full section regeneration.">ScopeRefineFixer</span> uses a smarter approach: <strong>scope-based fixing</strong>.</p>
+        </section>
+
+        <section class="screen animate-in">
+          <h2 class="screen-heading">The 3-Tier Fix Strategy</h2>
+          <p>ScopeRefineFixer analyzes the error and decides how much code to regenerate:</p>
+
+          <div class="step-cards">
+            <div class="step-card">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <strong>Single-Line Fix</strong>
+                <p>For simple errors like typos, undefined variables, or syntax mistakes. Only regenerate the problematic line plus 5 lines of context. Example: <code>NameError: 'VGropu' not defined</code> → fix to <code>VGroup</code>.</p>
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <strong>Function-Level Fix</strong>
+                <p>For errors in logic or parameter mismatches. Regenerate the entire function containing the error. Example: <code>TypeError: takes 2 positional arguments but 3 were given</code>.</p>
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">3</div>
+              <div class="step-body">
+                <strong>Section Regeneration</strong>
+                <p>For structural issues or multiple cascading errors. Regenerate the entire animation section from the storyboard. Last resort after 10+ failed fixes.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen animate-in">
+          <h2 class="screen-heading">Error Analysis Code</h2>
+          <p>Here's how ScopeRefineFixer categorizes errors to determine fix scope:</p>
+
+          <div class="translation-block">
+            <div class="translation-code">
+              <span class="translation-label">Python</span>
+<pre><code><span class="code-keyword">class</span> <span class="code-function">ManimCodeErrorAnalyzer</span>:
+    <span class="code-keyword">def</span> <span class="code-function">__init__</span>(self):
+        self.common_manim_errors = {
+            <span class="code-string">"NameError"</span>: self._analyze_name_error,
+            <span class="code-string">"AttributeError"</span>: self._analyze_attribute_error,
+            <span class="code-string">"TypeError"</span>: self._analyze_type_error,
+            <span class="code-string">"SyntaxError"</span>: self._analyze_syntax_error,
+        }
+
+    <span class="code-keyword">def</span> <span class="code-function">analyze_error</span>(self, code: str, error_msg: str) -> Dict:
+        error_info = {
+            <span class="code-string">"error_type"</span>: <span class="code-keyword">None</span>,
+            <span class="code-string">"line_number"</span>: <span class="code-keyword">None</span>,
+            <span class="code-string">"fix_scope"</span>: <span class="code-string">"single_line"</span>,
+            <span class="code-string">"suggested_fix"</span>: <span class="code-keyword">None</span>,
+        }
+
+        <span class="code-comment"># Parse error message</span>
+        error_info.update(self._parse_error_message(error_msg))
+
+        <span class="code-comment"># Analyze based on error type</span>
+        <span class="code-keyword">if</span> error_info[<span class="code-string">"error_type"</span>] <span class="code-keyword">in</span> self.common_manim_errors:
+            analyzer = self.common_manim_errors[error_info[<span class="code-string">"error_type"</span>]]
+            error_info.update(analyzer(code, error_msg, error_info))
+
+        <span class="code-keyword">return</span> error_info
+
+    <span class="code-keyword">def</span> <span class="code-function">_analyze_name_error</span>(self, code, error_msg, error_info):
+        <span class="code-comment"># Extract undefined variable</span>
+        match = re.search(<span class="code-string">r"name '(\w+)' is not defined"</span>, error_msg)
+        <span class="code-keyword">if</span> match:
+            undefined_name = match.group(<span class="code-number">1</span>)
+            <span class="code-keyword">return</span> {
+                <span class="code-string">"fix_scope"</span>: <span class="code-string">"single_line"</span>,
+                <span class="code-string">"suggested_fix"</span>: <span class="code-string">f"Import or create: {undefined_name}"</span>
+            }
+        <span class="code-keyword">return</span> {<span class="code-string">"fix_scope"</span>: <span class="code-string">"single_line"</span>}</code></pre>
+            </div>
+            <div class="translation-english">
+              <span class="translation-label">What it means</span>
+              <div class="translation-lines">
+                <div class="tl"><strong>Error type dispatch:</strong> Different error types get different analyzers. This is the Strategy pattern — each error has specialized handling logic.</div>
+                <div class="tl"><strong>Regex parsing:</strong> Extract structured information from Python's error messages. Find the line number, variable name, or function name.</div>
+                <div class="tl"><strong>Scope determination:</strong> The analyzer returns <code>fix_scope</code> which tells the fixer how much code to regenerate. NameError is usually single-line, TypeError might be function-level.</div>
+                <div class="tl"><strong>Suggested fix:</strong> Not just "there's an error" — the analyzer suggests what might be wrong ("Import or create: VGroup"). This suggestion goes into the fix prompt.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen animate-in">
+          <h2 class="screen-heading">Common Error Patterns</h2>
+          <p>ScopeRefineFixer recognizes these Manim-specific error patterns:</p>
+
+          <div class="pattern-cards">
+            <div class="pattern-card" style="border-color: var(--color-error);">
+              <div class="pattern-icon" style="background: var(--color-error-light); color: var(--color-error);">📛</div>
+              <div class="pattern-title">NameError</div>
+              <div class="pattern-desc">Undefined variables or typos. Example: <code>VGropu</code> instead of <code>VGroup</code>. Fix: Single-line correction.</div>
+            </div>
+            <div class="pattern-card" style="border-color: var(--color-info);">
+              <div class="pattern-icon" style="background: var(--color-info-light); color: var(--color-info);">⚙️</div>
+              <div class="pattern-title">AttributeError</div>
+              <div class="pattern-desc">Calling methods that don't exist. Example: <code>circle.set_colour()</code> (should be <code>set_color</code>). Fix: Single-line or function-level.</div>
+            </div>
+            <div class="pattern-card" style="border-color: var(--color-accent);">
+              <div class="pattern-icon" style="background: var(--color-accent-light); color: var(--color-accent);">🔢</div>
+              <div class="pattern-title">TypeError</div>
+              <div class="pattern-desc">Wrong number or type of arguments. Example: <code>Text("hello", color=RED, font_size=48, unknown_param=True)</code>. Fix: Function-level regeneration.</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen animate-in">
+          <h2 class="screen-heading">Quiz: Debugging Strategy</h2>
+          <div class="quiz-container">
+            <div class="quiz-question-block" data-question="q5-1" data-correct="option-a">
+              <h3 class="quiz-question">Code fails with <code>SyntaxError: invalid syntax on line 42</code> (missing closing parenthesis). Which fix tier should ScopeRefineFixer use?</h3>
+              <div class="quiz-options">
+                <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>Tier 1: Single-line fix — just add the closing parenthesis</span>
+                </button>
+                <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>Tier 2: Function-level — the entire function needs rethinking</span>
+                </button>
+                <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>Tier 3: Section regeneration — syntax errors indicate deep problems</span>
+                </button>
+              </div>
+              <div class="quiz-feedback" id="q5-1-feedback"></div>
+            </div>
+
+            <div class="quiz-question-block" data-question="q5-2" data-correct="option-c">
+              <h3 class="quiz-question">After 10 single-line fix attempts, the code still has errors (different errors each time). What should happen next?</h3>
+              <div class="quiz-options">
+                <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>Keep trying single-line fixes — eventually it will work</span>
+                </button>
+                <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>Give up and mark the section as failed</span>
+                </button>
+                <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>Escalate to Tier 3: Regenerate the entire section from the storyboard</span>
+                </button>
+              </div>
+              <div class="quiz-feedback" id="q5-2-feedback"></div>
+            </div>
+
+            <button class="quiz-check-btn" onclick="checkQuiz('module-5')">Check Answers</button>
+            <button class="quiz-reset-btn" onclick="resetQuiz('module-5')">Try Again</button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Module 6: Putting It All Together -->
+  <section class="module" id="module-6" style="background: var(--color-bg-warm)">
+    <div class="module-content">
+      <header class="module-header animate-in">
+        <span class="module-number">06</span>
+        <h1 class="module-title">Putting It All Together</h1>
+        <p class="module-subtitle">The complete Code2Video architecture and practical usage</p>
+      </header>
+
+      <div class="module-body">
+        <section class="screen animate-in">
+          <h2 class="screen-heading">The Full System Architecture</h2>
+          <p>Let's review the complete flow from start to finish:</p>
+
+          <div class="step-cards">
+            <div class="step-card">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <strong>User provides a knowledge point</strong>
+                <p>Example: "Explain how transformers work in machine learning"</p>
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <strong>TeachingVideoAgent generates outline</strong>
+                <p>Calls LLM API (Claude/GPT-4) to break topic into 3-5 teachable sections. Tracks tokens used.</p>
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">3</div>
+              <div class="step-body">
+                <strong>Agent generates storyboard</strong>
+                <p>For each section, asks LLM to describe animations in detail. Optionally downloads external assets (icons, diagrams).</p>
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">4</div>
+              <div class="step-body">
+                <strong>Agent generates Manim code</strong>
+                <p>Translates animation descriptions into executable Python. Uses parallel ThreadPoolExecutor for speed (6 sections at once).</p>
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">5</div>
+              <div class="step-body">
+                <strong>ScopeRefineFixer debugs code</strong>
+                <p>Runs <code>manim</code> command to render. If errors occur, analyzes them and applies targeted fixes (single-line, function, or section regeneration).</p>
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">6</div>
+              <div class="step-body">
+                <strong>Critic provides feedback (optional)</strong>
+                <p>If <code>use_feedback=True</code>, Gemini watches each video and suggests layout improvements. Agent regenerates code with feedback integrated.</p>
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">7</div>
+              <div class="step-body">
+                <strong>Videos are merged</strong>
+                <p>All section MP4 files are concatenated using FFmpeg into one final educational video.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen animate-in">
+          <h2 class="screen-heading">Key Configuration Options</h2>
+          <p>Code2Video is highly configurable through <code>RunConfig</code>:</p>
+
+          <div class="pattern-cards">
+            <div class="pattern-card" style="border-color: var(--color-accent);">
+              <div class="pattern-icon" style="background: var(--color-accent-light); color: var(--color-accent);">🎛️</div>
+              <div class="pattern-title">use_feedback</div>
+              <div class="pattern-desc">Enable/disable multimodal LLM critique. Increases quality but costs more tokens. Default: False.</div>
+            </div>
+            <div class="pattern-card" style="border-color: var(--color-info);">
+              <div class="pattern-icon" style="background: var(--color-info-light); color: var(--color-info);">🖼️</div>
+              <div class="pattern-title">use_assets</div>
+              <div class="pattern-desc">Automatically download icons and images from external APIs. Makes videos more visually rich. Default: False.</div>
+            </div>
+            <div class="pattern-card" style="border-color: var(--color-success);">
+              <div class="pattern-icon" style="background: var(--color-success-light); color: var(--color-success);">🔢</div>
+              <div class="pattern-title">max_fix_bug_tries</div>
+              <div class="pattern-desc">How many times to attempt error fixing before giving up. Default: 10.</div>
+            </div>
+            <div class="pattern-card" style="border-color: var(--color-actor-4);">
+              <div class="pattern-icon" style="background: rgba(212, 168, 67, 0.2); color: var(--color-actor-4);">🔄</div>
+              <div class="pattern-title">feedback_rounds</div>
+              <div class="pattern-desc">How many critique-regenerate cycles to run per section. Default: 2.</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen animate-in">
+          <h2 class="screen-heading">Practical Tips for Using Code2Video</h2>
+          <div class="callout callout-accent">
+            <div class="callout-icon">💡</div>
+            <div class="callout-content">
+              <strong class="callout-title">Best Practices</strong>
+              <p><strong>1. Start with simple topics:</strong> Test with "Explain binary search" before trying "The full history of quantum mechanics."</p>
+              <p><strong>2. Monitor token usage:</strong> Each video prints total tokens consumed. Use this to estimate costs before running batches.</p>
+              <p><strong>3. Use parallel processing:</strong> Set <code>parallel=True</code> and <code>batch_size=3</code> to process multiple knowledge points concurrently.</p>
+              <p><strong>4. Enable feedback selectively:</strong> For draft videos, skip <code>use_feedback</code>. For final polished versions, enable it.</p>
+              <p><strong>5. Check intermediate outputs:</strong> Inspect <code>outline.json</code> and <code>storyboard.json</code> to debug issues before waiting for full renders.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen animate-in">
+          <h2 class="screen-heading">Final Quiz: End-to-End Understanding</h2>
+          <div class="quiz-container">
+            <div class="quiz-question-block" data-question="q6-1" data-correct="option-b">
+              <h3 class="quiz-question">You want to generate 100 educational videos overnight. Which configuration optimizes for throughput?</h3>
+              <div class="quiz-options">
+                <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>use_feedback=True, use_assets=True, parallel=False (highest quality)</span>
+                </button>
+                <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>use_feedback=False, use_assets=False, parallel=True (fastest, lowest cost)</span>
+                </button>
+                <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>use_feedback=True, use_assets=False, parallel=True (balanced)</span>
+                </button>
+              </div>
+              <div class="quiz-feedback" id="q6-1-feedback"></div>
+            </div>
+
+            <div class="quiz-question-block" data-question="q6-2" data-correct="option-c">
+              <h3 class="quiz-question">A video has correct content but the narrator's text overlaps with diagrams. Which component would you investigate first?</h3>
+              <div class="quiz-options">
+                <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>The outline generation — content structure is wrong</span>
+                </button>
+                <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>ScopeRefineFixer — it should have caught the layout error</span>
+                </button>
+                <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>The Critic (MLLM feedback) or code generation — layout is determined by Manim positioning</span>
+                </button>
+              </div>
+              <div class="quiz-feedback" id="q6-2-feedback"></div>
+            </div>
+
+            <div class="quiz-question-block" data-question="q6-3" data-correct="option-a">
+              <h3 class="quiz-question">You notice videos cost $2 in API fees each. What's the most effective way to reduce costs by 50% without sacrificing too much quality?</h3>
+              <div class="quiz-options">
+                <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>Disable use_feedback and use_assets (feedback is expensive, assets add API calls)</span>
+                </button>
+                <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>Reduce max_code_token_length to 5000 (shorter prompts = cheaper)</span>
+                </button>
+                <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                  <div class="quiz-option-radio"></div>
+                  <span>Switch to a cheaper LLM for all stages (might break code generation)</span>
+                </button>
+              </div>
+              <div class="quiz-feedback" id="q6-3-feedback"></div>
+            </div>
+
+            <button class="quiz-check-btn" onclick="checkQuiz('module-6')">Check Answers</button>
+            <button class="quiz-reset-btn" onclick="resetQuiz('module-6')">Try Again</button>
+          </div>
+        </section>
+
+        <section class="screen animate-in">
+          <h2 class="screen-heading">Congratulations!</h2>
+          <p>You've completed the Code2Video interactive course. You now understand:</p>
+          <ul style="margin: var(--space-4) 0; padding-left: var(--space-8); line-height: var(--leading-loose);">
+            <li>How Code2Video transforms text into educational videos through executable code</li>
+            <li>The three main agents: TeachingVideoAgent, LLM API Layer, and ScopeRefineFixer</li>
+            <li>The 5-stage pipeline: Topic → Outline → Storyboard → Code → Video</li>
+            <li>How multiple LLM models (Claude, GPT-4, Gemini) work together</li>
+            <li>The intelligent 3-tier error fixing strategy</li>
+            <li>Practical configuration options for optimizing cost vs. quality</li>
+          </ul>
+
+          <div class="callout callout-accent" style="margin-top: var(--space-8);">
+            <div class="callout-icon">🚀</div>
+            <div class="callout-content">
+              <strong class="callout-title">Ready to dive deeper?</strong>
+              <p>Explore the Code2Video repository on GitHub, read the research paper, or try running the system yourself with a simple knowledge point. The best way to learn is by experimenting!</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- JavaScript -->
+  <script>
+    // ========================================
+    // GLOSSARY TOOLTIP SYSTEM
+    // ========================================
+    const glossary = {
+      "knowledge points": "A knowledge point is a single concept or topic you want to teach - like 'How sorting algorithms work' or 'Understanding transformers in machine learning.'",
+      "Manim": "Manim is a mathematical animation engine created by 3Blue1Brown. It generates animations through code rather than GUI tools - think of it as writing instructions for an animator instead of drawing frames yourself.",
+      "pixel-based text-to-video models": "Pixel-based models like Stable Diffusion or DALL-E work by predicting individual pixels. They can hallucinate details and produce inconsistent results because they don't understand the underlying structure.",
+      "TeachingVideoAgent": "TeachingVideoAgent is the main coordinator in Code2Video. It manages the entire pipeline: outline → storyboard → code → video → merge. It delegates work to LLMs and handles errors through ScopeRefineFixer.",
+      "storyboard": "A storyboard in Code2Video is a JSON structure that describes each section of the video. It includes lecture_lines (what the narrator says) and animations (what visual elements appear). Think of it as a detailed script for a movie scene.",
+      "Claude": "Claude is Anthropic's family of large language models. Code2Video supports Claude 4 Opus for high-quality text generation with strong reasoning capabilities.",
+      "GPT-4/GPT-5": "GPT-4 and GPT-5 are OpenAI's flagship models. Code2Video uses them for code generation and complex reasoning tasks. GPT-4o provides a good balance of speed and capability.",
+      "Gemini": "Gemini is Google's multimodal AI model. Code2Video uses Gemini 2.5 Pro for video analysis and feedback — it can 'watch' generated videos and suggest improvements.",
+      "ScopeRefineFixer": "ScopeRefineFixer is Code2Video's intelligent error correction system. It analyzes Python errors, categorizes them, and applies targeted fixes at three levels of scope: single line, function, or full section regeneration."
+    };
+
+    const tooltip = document.createElement('div');
+    tooltip.className = 'term-tooltip';
+    document.body.appendChild(tooltip);
+
+    document.querySelectorAll('.term').forEach(term => {
+      term.addEventListener('mouseenter', (e) => {
+        const definition = term.dataset.definition;
+        if (!definition) return;
+
+        tooltip.textContent = definition;
+        tooltip.classList.add('visible');
+
+        // Position tooltip above the term
+        const rect = term.getBoundingClientRect();
+        const tooltipRect = tooltip.getBoundingClientRect();
+
+        // Center horizontally on the term
+        let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+        // Position above with some spacing
+        let top = rect.top - tooltipRect.height - 8;
+
+        // Prevent tooltip from going off-screen horizontally
+        const padding = 10;
+        if (left < padding) left = padding;
+        if (left + tooltipRect.width > window.innerWidth - padding) {
+          left = window.innerWidth - tooltipRect.width - padding;
+        }
+
+        // If tooltip would go off-screen vertically, flip it below
+        if (top < padding) {
+          top = rect.bottom + 8;
+          tooltip.classList.add('flip');
+        } else {
+          tooltip.classList.remove('flip');
+        }
+
+        tooltip.style.left = left + 'px';
+        tooltip.style.top = top + 'px';
+      });
+
+      term.addEventListener('mouseleave', () => {
+        tooltip.classList.remove('visible');
+      });
+    });
+
+    // ========================================
+    // SCROLL PROGRESS & NAVIGATION
+    // ========================================
+    const progressBar = document.querySelector('.progress-bar');
+    const navDots = document.querySelectorAll('.nav-dot');
+    const modules = document.querySelectorAll('.module');
+
+    function updateProgress() {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const progress = (scrollTop / scrollHeight) * 100;
+      progressBar.style.width = progress + '%';
+
+      // Update nav dots based on current module
+      let currentModule = 0;
+      modules.forEach((module, index) => {
+        const rect = module.getBoundingClientRect();
+        if (rect.top <= 100 && rect.bottom > 100) {
+          currentModule = index;
+        }
+      });
+
+      navDots.forEach((dot, index) => {
+        dot.classList.remove('current');
+        if (index < currentModule) {
+          dot.classList.add('visited');
+        }
+        if (index === currentModule) {
+          dot.classList.add('current');
+        }
+      });
+    }
+
+    window.addEventListener('scroll', updateProgress);
+    updateProgress();
+
+    navDots.forEach((dot, index) => {
+      dot.addEventListener('click', () => {
+        modules[index].scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+
+    // ========================================
+    // INTERSECTION OBSERVER FOR ANIMATIONS
+    // ========================================
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -100px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.animate-in').forEach(el => observer.observe(el));
+
+    // ========================================
+    // QUIZ SYSTEM
+    // ========================================
+    const quizData = {
+      'q1-1': {
+        correct: 'option-b',
+        explanation: "Correct! Code2Video generates precise mathematical animations through code, not pixel guesses. This means derivatives, integrals, and geometric transformations are calculated exactly — no hallucinations."
+      },
+      'q1-2': {
+        correct: 'option-c',
+        explanation: "Exactly right! Since Code2Video generates Manim code with color variables (like RED, BLUE, etc.), you can simply change those parameters and re-render. With pixel-based generation, you'd have to regenerate the entire video from scratch with a different prompt."
+      },
+      'q2-1': {
+        correct: 'option-b',
+        explanation: "Correct! ScopeRefineFixer is the debugging specialist. It analyzes syntax errors, determines the fix scope (single-line, function, or section), and regenerates code. TeachingVideoAgent orchestrates this, but ScopeRefineFixer does the actual error analysis."
+      },
+      'q2-2': {
+        correct: 'option-c',
+        explanation: "Perfect! The LLM API Layer (gpt_request.py) abstracts all model interactions. You'd add a new function like request_claude5_token() that follows the same signature as existing functions, then point RunConfig.api to it."
+      },
+      'q3-1': {
+        correct: 'option-b',
+        explanation: "Correct! Visual layout is determined by Manim code (positioning, sizing, alignment). Either the code generation stage is creating overlapping elements, or the Critic (MLLM feedback) isn't catching layout issues. The outline and storyboard control content, not visual placement."
+      },
+      'q3-2': {
+        correct: 'option-c',
+        explanation: "Exactly! Audio narration needs lecture_lines from the storyboard (what to say) and timing information from the video (when to say it). It makes sense to generate audio after videos are rendered, then overlay it in a final composition step."
+      },
+      'q4-1': {
+        correct: 'option-c',
+        explanation: "Correct! RunConfig has an 'api' parameter that points to a request function (like request_gpt41_token or request_claude_token). Change this to a cheaper model's function, and all stages will use it. No code changes needed in generate_outline() itself."
+      },
+      'q4-2': {
+        correct: 'option-b',
+        explanation: "Exactly! The retry logic uses exponential backoff: wait 0.2s, then 0.4s, then 0.8s (plus random jitter). This is respectful to the API and more likely to succeed than hammering it with instant retries. It doesn't switch providers automatically."
+      },
+      'q5-1': {
+        correct: 'option-a',
+        explanation: "Correct! SyntaxError from a missing parenthesis is a simple fix-scope='single_line' error. ScopeRefineFixer would extract that line plus context, send it to the LLM with the error message, and get a corrected line back."
+      },
+      'q5-2': {
+        correct: 'option-c',
+        explanation: "Perfect! When single-line fixes keep failing (different errors = whack-a-mole debugging), it indicates structural problems. ScopeRefineFixer escalates to Tier 3: discard the buggy code and regenerate the entire section from the storyboard using generate_section_code(attempt=N)."
+      },
+      'q6-1': {
+        correct: 'option-b',
+        explanation: "Exactly! For throughput, disable expensive features: use_feedback=False (no Gemini video critique), use_assets=False (no external downloads), parallel=True (process multiple videos concurrently). This minimizes API costs and time while still producing functional educational videos."
+      },
+      'q6-2': {
+        correct: 'option-c',
+        explanation: "Correct! Overlapping text/diagrams is a layout issue determined by Manim code positioning. Either the code generation stage isn't spacing elements properly, or the Critic (MLLM feedback with Gemini) isn't catching it. ScopeRefineFixer only handles Python errors, not visual quality."
+      },
+      'q6-3': {
+        correct: 'option-a',
+        explanation: "Perfect! Feedback (MLLM video critique) and assets (external API calls) are the most expensive optional features. Disabling them cuts costs significantly. Reducing max_code_token_length might break code generation, and switching models indiscriminately could cause quality issues. Target optional features first."
+      }
+    };
+
+    function selectOption(button) {
+      const questionBlock = button.closest('.quiz-question-block');
+      const options = questionBlock.querySelectorAll('.quiz-option');
+
+      options.forEach(opt => {
+        opt.classList.remove('selected');
+        opt.disabled = false;
+      });
+
+      button.classList.add('selected');
+    }
+
+    function checkQuiz(moduleId) {
+      const module = document.getElementById(moduleId);
+      const questions = module.querySelectorAll('.quiz-question-block');
+      let allCorrect = true;
+
+      questions.forEach(question => {
+        const selected = question.querySelector('.quiz-option.selected');
+        const feedback = question.querySelector('.quiz-feedback');
+        const questionId = question.dataset.question;
+        const correctAnswer = question.dataset.correct;
+
+        if (!selected) {
+          feedback.className = 'quiz-feedback show warning';
+          feedback.textContent = 'Please select an answer first.';
+          allCorrect = false;
+          return;
+        }
+
+        const selectedValue = selected.dataset.value;
+        const isCorrect = selectedValue === correctAnswer;
+
+        // Mark all options
+        question.querySelectorAll('.quiz-option').forEach(opt => {
+          opt.disabled = true;
+          if (opt.dataset.value === correctAnswer) {
+            opt.classList.add('correct');
+          } else if (opt.classList.contains('selected') && !isCorrect) {
+            opt.classList.add('incorrect');
+          }
+        });
+
+        // Show feedback
+        if (isCorrect) {
+          feedback.className = 'quiz-feedback show success';
+          feedback.textContent = '✓ ' + (quizData[questionId]?.explanation || 'Correct!');
+        } else {
+          feedback.className = 'quiz-feedback show error';
+          feedback.textContent = '✗ Not quite. ' + (quizData[questionId]?.explanation || 'Try again!');
+          allCorrect = false;
+        }
+      });
+
+      if (allCorrect) {
+        console.log(`Module ${moduleId} quiz completed successfully!`);
+      }
+    }
+
+    function resetQuiz(moduleId) {
+      const module = document.getElementById(moduleId);
+      const questions = module.querySelectorAll('.quiz-question-block');
+
+      questions.forEach(question => {
+        const options = question.querySelectorAll('.quiz-option');
+        const feedback = question.querySelector('.quiz-feedback');
+
+        options.forEach(opt => {
+          opt.classList.remove('selected', 'correct', 'incorrect');
+          opt.disabled = false;
+        });
+
+        feedback.className = 'quiz-feedback';
+        feedback.textContent = '';
+      });
+    }
+
+    // ========================================
+    // CHAT ANIMATION
+    // ========================================
+    const chatScripts = {
+      'chat-2': [
+        { sender: 'User', role: 'user', text: 'Generate a video about "How neural networks learn"', color: 'var(--color-actor-1)' },
+        { sender: 'TeachingVideoAgent', role: 'orchestrator', text: 'Received request. Calling LLM API to generate outline...', color: 'var(--color-actor-1)' },
+        { sender: 'LLM API', role: 'llm', text: 'Outline generated: 3 sections (Input Layer, Hidden Layers, Backpropagation). Used 1,243 tokens.', color: 'var(--color-actor-2)' },
+        { sender: 'TeachingVideoAgent', role: 'orchestrator', text: 'Outline saved. Now generating storyboard for each section...', color: 'var(--color-actor-1)' },
+        { sender: 'LLM API', role: 'llm', text: 'Storyboard complete. Described 12 animation sequences. Used 3,892 tokens.', color: 'var(--color-actor-2)' },
+        { sender: 'TeachingVideoAgent', role: 'orchestrator', text: 'Generating Manim code for section_1...', color: 'var(--color-actor-1)' },
+        { sender: 'LLM API', role: 'llm', text: 'Code generated (247 lines). Rendering with manim...', color: 'var(--color-actor-2)' },
+        { sender: 'ScopeRefineFixer', role: 'fixer', text: 'Error detected: NameError on line 42 (VGropu → VGroup). Applying single-line fix...', color: 'var(--color-actor-3)' },
+        { sender: 'ScopeRefineFixer', role: 'fixer', text: 'Fix applied. Re-rendering... Success! Video saved to section_1.mp4', color: 'var(--color-actor-3)' },
+        { sender: 'TeachingVideoAgent', role: 'orchestrator', text: 'All 3 sections rendered. Merging videos with FFmpeg...', color: 'var(--color-actor-1)' },
+        { sender: 'TeachingVideoAgent', role: 'orchestrator', text: 'Video complete! Total tokens used: 8,429. Time elapsed: 4.3 minutes.', color: 'var(--color-actor-1)' }
+      ]
+    };
+
+    let chatTimers = {};
+
+    function startChat(chatId) {
+      const messagesContainer = document.getElementById(`${chatId}-messages`);
+      const typingIndicator = document.getElementById(`${chatId}-typing`);
+      const progress = document.getElementById(`${chatId}-progress`);
+      const script = chatScripts[chatId];
+
+      if (!script) return;
+
+      // Clear existing messages
+      messagesContainer.innerHTML = '';
+      typingIndicator.style.display = 'none';
+
+      let currentIndex = 0;
+
+      function showNextMessage() {
+        if (currentIndex >= script.length) {
+          progress.textContent = 'Conversation complete';
+          return;
+        }
+
+        typingIndicator.style.display = 'flex';
+        progress.textContent = `Message ${currentIndex + 1}/${script.length}`;
+
+        setTimeout(() => {
+          const msg = script[currentIndex];
+          const messageEl = document.createElement('div');
+          messageEl.className = 'chat-message';
+          messageEl.innerHTML = `
+            <div class="chat-avatar" style="background: ${msg.color}">${msg.sender[0]}</div>
+            <div class="chat-bubble">
+              <span class="chat-sender">${msg.sender}</span>
+              <p>${msg.text}</p>
+            </div>
+          `;
+          messagesContainer.appendChild(messageEl);
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+          typingIndicator.style.display = 'none';
+
+          currentIndex++;
+          chatTimers[chatId] = setTimeout(showNextMessage, 1500);
+        }, 1000);
+      }
+
+      showNextMessage();
+    }
+
+    function resetChat(chatId) {
+      if (chatTimers[chatId]) {
+        clearTimeout(chatTimers[chatId]);
+      }
+      const messagesContainer = document.getElementById(`${chatId}-messages`);
+      const typingIndicator = document.getElementById(`${chatId}-typing`);
+      const progress = document.getElementById(`${chatId}-progress`);
+
+      messagesContainer.innerHTML = '';
+      typingIndicator.style.display = 'none';
+      progress.textContent = 'Ready to begin';
+    }
+
+    // ========================================
+    // FLOW ANIMATION
+    // ========================================
+    const flowData = {
+      'flow-3': [
+        { step: 0, label: 'User provides: "Explain transformers in machine learning"' },
+        { step: 1, label: 'LLM generates outline: 4 sections (Attention Mechanism, Encoder, Decoder, Training)' },
+        { step: 2, label: 'LLM creates detailed storyboard: 16 animation sequences described' },
+        { step: 3, label: 'LLM generates Manim code: 4 Python files (section_1.py through section_4.py)' },
+        { step: 4, label: 'Manim renders videos → FFmpeg merges → Final MP4 output (8:32 duration)' }
+      ]
+    };
+
+    let flowTimers = {};
+
+    function startFlow(flowId) {
+      const actors = document.querySelector(`#${flowId}-animation-3 .flow-actors`).querySelectorAll('.flow-actor');
+      const label = document.getElementById(`${flowId}-label-3`);
+      const progress = document.getElementById(`${flowId}-progress-3`);
+      const steps = flowData[flowId];
+
+      if (!steps) return;
+
+      // Reset
+      actors.forEach(actor => actor.classList.remove('active'));
+
+      let currentStep = 0;
+
+      function showNextStep() {
+        if (currentStep >= steps.length) {
+          progress.textContent = 'Pipeline complete!';
+          return;
+        }
+
+        const stepData = steps[currentStep];
+
+        // Activate current actor
+        actors.forEach((actor, index) => {
+          actor.classList.remove('active');
+          if (index === stepData.step) {
+            actor.classList.add('active');
+          }
+        });
+
+        label.textContent = stepData.label;
+        progress.textContent = `Step ${currentStep + 1}/${steps.length}`;
+
+        currentStep++;
+        flowTimers[flowId] = setTimeout(showNextStep, 2500);
+      }
+
+      showNextStep();
+    }
+
+    function resetFlow(flowId) {
+      if (flowTimers[flowId]) {
+        clearTimeout(flowTimers[flowId]);
+      }
+      const actors = document.querySelector(`#${flowId}-animation-3 .flow-actors`).querySelectorAll('.flow-actor');
+      const label = document.getElementById(`${flowId}-label-3`);
+      const progress = document.getElementById(`${flowId}-progress-3`);
+
+      actors.forEach(actor => actor.classList.remove('active'));
+      label.textContent = 'Click "Start" to see the pipeline in action';
+      progress.textContent = 'Ready';
+    }
+  </script>
+</body>
+</html>
